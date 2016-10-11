@@ -17,7 +17,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainContentComponent   : public AudioAppComponent
+class MainContentComponent   : public AudioAppComponent, private Slider::Listener, private ToggleButton::Listener
 {
 public:
     //==============================================================================
@@ -25,20 +25,50 @@ public:
     {
         setSize (800, 600);
         
-        nChans = 1; // number of output audio channels
+        nChans = 2; // number of output audio channels
         
         setAudioChannels (0, nChans);
         
-        audioBuffer = new float*[nChans];
+        audioBuffer = new float*[nChans]; // allocate memory
+        
+    // Dial 1
+        freqSlider.setSliderStyle (Slider::LinearBarVertical);
+        freqSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
+        addAndMakeVisible (freqSlider);
+       // freqSlider.setBounds (600, 100, 20, 230);
+        freqSlider.setRange (50.0, 5000.0);
+        freqSlider.setSkewFactorFromMidPoint (500.0); // [4]
+        freqSlider.addListener (this);
+   
+        // Dial 2
+        gainSlider.setSliderStyle (Slider::LinearHorizontal);
+        gainSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
+        addAndMakeVisible (gainSlider);
+        //gainSlider.setBounds (300, 300, 230, 20);
+        gainSlider.setRange (0.0, 1.0);
+       // gainSlider.setSkewFactorFromMidPoint(0.5);
+        gainSlider.addListener (this);
+        
+        
+        // Dial 3
+        cutoffSlider.setSliderStyle (Slider::LinearBarVertical);
+        //cutoffSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
+       // cutoffSlider.setBounds (100, 100, 20, 230);
+        addAndMakeVisible (cutoffSlider);
+        cutoffSlider.setRange (50.0, 3000.0);
+        //cutoffSlider.setSkewFactorFromMidPoint(0.5);
+        cutoffSlider.addListener (this);
     }
 
     ~MainContentComponent()
     {
         shutdownAudio();
-        delete [] audioBuffer;
+        delete [] audioBuffer; // when app is terminated deallocate memory
 
     }
 
+
+    
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
     {
@@ -48,7 +78,7 @@ public:
         blockSize = samplesPerBlockExpected;
         
         synth.init(sampleRate); // initializing the Faust module
-        synth.buildUserInterface(&synthControl); // linking the Faust module to the controler
+        synth.buildUserInterface(&synthControl); // linking the Faust module to the controler/ MAPUI object
         
         // Print the list of parameters address of "saw"
         // To get the current (default) value of these parameters, sawControl.getParamValue("paramPath") can be used
@@ -68,11 +98,22 @@ public:
 
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
-        audioBuffer[0] = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
+//        const float freq= freqSlider.getValue();
         
-        // any processing before going to "saw" could be done here in a dedicated buffer loop
+        for(int i=0; i<nChans; i++){
+            audioBuffer[i] = bufferToFill.buffer->getWritePointer (i, bufferToFill.startSample);
+
+        }
         
-        synth.compute(blockSize, NULL, audioBuffer); // computing one block with Faust
+        synth.compute(blockSize, NULL, audioBuffer); // computing one block with Faust        // any processing before going to "saw" could be done here in a dedicated buffer loop
+
+
+        for (int sample=0; sample < bufferToFill.numSamples; ++ sample){
+            audioBuffer[1][sample]=audioBuffer[0][sample];
+        }
+        
+        
+        
     }
 
     void releaseResources() override
@@ -87,8 +128,11 @@ public:
     void paint (Graphics& g) override
     {
         // (Our component is opaque, so we must completely fill the background with a solid colour)
-        g.fillAll (Colours::black);
-
+       // g.fillAll (Colours::black);
+        
+        File f = (String)"/Users/victoriagrace/Desktop/backgrounds/hay.jpg";
+        Image hay = ImageFileFormat::loadFrom(f);;
+        g.drawImageAt(hay,0,0,false);
 
         // You can add your drawing code here!
     }
@@ -98,8 +142,63 @@ public:
         // This is called when the MainContentComponent is resized.
         // If you add any child components, this is where you should
         // update their positions.
-    }
+        
+        
+        const int border = 4;
+        
+        
+        
+        Rectangle<int> area = getLocalBounds();
+        int w = area.getWidth();
+        int h = area.getHeight();
+        int gridW = w/8;
+        int gridH = h/8;
+        int sliderWidth = 20; // for the offset
+        
+        freqSlider.setBounds(2*gridW-sliderWidth,3*gridH,sliderWidth,3*gridH);
+        cutoffSlider.setBounds(6*gridW,3*gridH,sliderWidth,3*gridH);
+        
+        gainSlider.setBounds(3*gridW,6*gridH,2*gridW,sliderWidth);
 
+        
+//        {
+//            Rectangle<int> dialArea = area.removeFromTop (area.getHeight() / 2);
+//            freqSlider.setBounds (dialArea.removeFromLeft (dialArea.getWidth() / 2).reduced (border));
+//
+//            
+//            gainSlider.setBounds (dialArea.removeFromLeft (dialArea.getWidth() / 2).reduced (border));
+//            cutoffSlider.setBounds (dialArea.removeFromLeft (dialArea.getWidth() / 2).reduced (border));
+//
+//
+//        }
+        
+       
+
+        
+    }
+            void sliderValueChanged (Slider* slider) override
+            {
+                if (currentSampleRate > 0.0){
+                    if (slider == &freqSlider)
+                    {
+                        synthControl.setParamValue("/saw/freq", freqSlider.getValue());
+                    }
+                    else if (slider == &gainSlider)
+                    {
+                        synthControl.setParamValue("/saw/gain", gainSlider.getValue());
+                    }
+                    else if (slider == &cutoffSlider)
+                    {
+                        synthControl.setParamValue("/saw/cutoff", cutoffSlider.getValue());
+                    }
+                }
+            }
+    
+    /** Called when the button is clicked. */
+    void buttonClicked (Button*) override {}
+    
+    /** Called when the button's state changes. */
+    void buttonStateChanged (Button*) override  {}
 
 private:
     //==============================================================================
@@ -114,8 +213,9 @@ private:
     
     float** audioBuffer; // multichannel audio buffer used both for input and output
 
-    
-    
+    Slider freqSlider;
+    Slider gainSlider;
+    Slider cutoffSlider;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 
