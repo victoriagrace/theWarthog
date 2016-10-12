@@ -36,8 +36,8 @@ public:
         freqSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
         addAndMakeVisible (freqSlider);
        // freqSlider.setBounds (600, 100, 20, 230);
-        freqSlider.setRange (50.0, 2000.0);
-        freqSlider.setSkewFactorFromMidPoint (500.0); // [4]
+        freqSlider.setRange (12, 60);
+        //freqSlider.setSkewFactorFromMidPoint (500.0); // [4]
         freqSlider.addListener (this);
    
         // Dial 2
@@ -55,7 +55,7 @@ public:
         //cutoffSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
        // cutoffSlider.setBounds (100, 100, 20, 230);
         addAndMakeVisible (cutoffSlider);
-        cutoffSlider.setRange (50.0, 3000.0);
+        cutoffSlider.setRange (0, 1);
         //cutoffSlider.setSkewFactorFromMidPoint(0.5);
         cutoffSlider.addListener (this);
         
@@ -109,10 +109,10 @@ public:
         for(int i=0; i<synthControl.getParamsCount(); i++){
             std::cout << synthControl.getParamAdress(i) << "\n";
         }
-            synthControl.setParamValue("/saw/freq",200);
+            synthControl.setParamValue("/saw/freq",36);
             synthControl.setParamValue("/saw/gain",0.5);
             synthControl.setParamValue("/saw/gate",1);
-            synthControl.setParamValue("/saw/cutoff",1000);
+            synthControl.setParamValue("/saw/formant",0.5);
             
         // You can use this function to initialise any resources you might need,
         // but be careful - it will be called on the audio thread, not the GUI thread.
@@ -215,7 +215,7 @@ public:
                     }
                     else if (slider == &cutoffSlider)
                     {
-                        synthControl.setParamValue("/saw/cutoff", cutoffSlider.getValue());
+                        synthControl.setParamValue("/saw/formant", cutoffSlider.getValue());
                     }
                 }
             }

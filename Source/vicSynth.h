@@ -671,35 +671,72 @@ class decorator_dsp : public dsp {
 
 class vicSynth : public dsp {
   private:
-	FAUSTFLOAT 	fentry0;
-	float 	fRec0[2];
-	FAUSTFLOAT 	fbutton0;
-	float 	fRec1[2];
 	float 	fConst0;
 	float 	fConst1;
 	float 	fConst2;
-	FAUSTFLOAT 	fentry1;
-	float 	fRec5[2];
-	float 	fRec3[2];
+	int 	iVec0[2];
 	float 	fConst3;
 	FAUSTFLOAT 	fslider0;
+	float 	fRec0[2];
+	FAUSTFLOAT 	fbutton0;
+	float 	fRec1[2];
+	float 	fConst4;
+	float 	fConst5;
+	float 	fConst6;
+	float 	fConst7;
+	float 	fConst8;
+	float 	fConst9;
+	float 	fConst10;
+	FAUSTFLOAT 	fentry0;
+	float 	fRec7[2];
 	float 	fRec6[2];
+	float 	fVec1[2];
+	float 	fRec8[2];
+	float 	fVec2[2];
+	float 	fConst11;
+	int 	IOTA;
+	float 	fVec3[1024];
+	float 	fVec4[1024];
+	float 	fConst12;
+	float 	fRec5[3];
+	float 	fConst13;
+	float 	fConst14;
+	float 	fRec4[3];
+	FAUSTFLOAT 	fslider1;
+	float 	fRec9[2];
+	float 	fRec3[3];
+	float 	fConst15;
+	float 	fConst16;
 	float 	fRec2[3];
 	int fSamplingFreq;
 
   public:
 	virtual void metadata(Meta* m) { 
+		m->declare("oscillator.lib/name", "Faust Oscillator Library");
+		m->declare("oscillator.lib/author", "Julius O. Smith (jos at ccrma.stanford.edu)");
+		m->declare("oscillator.lib/copyright", "Julius O. Smith III");
+		m->declare("oscillator.lib/version", "1.11");
+		m->declare("oscillator.lib/license", "STK-4.3");
+		m->declare("oscillator.lib/deprecated", "This library is deprecated and is not maintained anymore. It might be removed in future released.");
 		m->declare("filter.lib/name", "Faust Filter Library");
 		m->declare("filter.lib/version", "2.0");
-		m->declare("miscoscillator.lib/name", "Faust Oscillator Library");
-		m->declare("miscoscillator.lib/version", "0.0");
+		m->declare("basic.lib/name", "Faust Basic Element Library");
+		m->declare("basic.lib/version", "0.0");
 		m->declare("signal.lib/name", "Faust Signal Routing Library");
 		m->declare("signal.lib/version", "0.0");
+		m->declare("music.lib/name", "Music Library");
+		m->declare("music.lib/author", "GRAME");
+		m->declare("music.lib/copyright", "GRAME");
+		m->declare("music.lib/version", "1.0");
+		m->declare("music.lib/license", "LGPL with exception");
+		m->declare("music.lib/deprecated", "This library is deprecated and is not maintained anymore. It might be removed in future released.");
 		m->declare("math.lib/name", "Faust Math Library");
 		m->declare("math.lib/version", "2.0");
 		m->declare("math.lib/author", "GRAME");
 		m->declare("math.lib/copyright", "GRAME");
 		m->declare("math.lib/license", "LGPL with exception");
+		m->declare("misceffect.lib/name", "Faust Math Library");
+		m->declare("misceffect.lib/version", "2.0");
 	}
 
 	virtual int getNumInputs() { return 0; }
@@ -709,22 +746,45 @@ class vicSynth : public dsp {
 	virtual void instanceConstants(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
 		fConst0 = min(1.92e+05f, max(1.0f, (float)fSamplingFreq));
-		fConst1 = float(fConst0);
+		fConst1 = tanf((7539.8223f / fConst0));
 		fConst2 = (1.0f / fConst1);
-		fConst3 = (3.1415927f / fConst0);
+		fConst3 = (1.0f / (((fConst2 + 0.2f) / fConst1) + 1));
+		fConst4 = tanf((1256.6371f / fConst0));
+		fConst5 = (1.0f / fConst4);
+		fConst6 = (1.0f / (((fConst5 + 0.1f) / fConst4) + 1));
+		fConst7 = (0 - fConst5);
+		fConst8 = float(fConst0);
+		fConst9 = (0.25f * fConst8);
+		fConst10 = (1.0f / fConst0);
+		fConst11 = (0.1f * fConst8);
+		fConst12 = (3.1415927f / fConst0);
+		fConst13 = (((fConst5 + -0.1f) / fConst4) + 1);
+		fConst14 = (2 * (1 - (1.0f / faustpower<2>(fConst4))));
+		fConst15 = (((fConst2 + -0.2f) / fConst1) + 1);
+		fConst16 = (2 * (1 - (1.0f / faustpower<2>(fConst1))));
 	}
 	virtual void instanceResetUserInterface() {
-		fentry0 = 1.0f;
+		fslider0 = 1.0f;
 		fbutton0 = 0.0;
-		fentry1 = 4.4e+02f;
-		fslider0 = 5e+02f;
+		fentry0 = 24.0f;
+		fslider1 = 0.0f;
 	}
 	virtual void instanceClear() {
+		for (int i=0; i<2; i++) iVec0[i] = 0;
 		for (int i=0; i<2; i++) fRec0[i] = 0;
 		for (int i=0; i<2; i++) fRec1[i] = 0;
-		for (int i=0; i<2; i++) fRec5[i] = 0;
-		for (int i=0; i<2; i++) fRec3[i] = 0;
+		for (int i=0; i<2; i++) fRec7[i] = 0;
 		for (int i=0; i<2; i++) fRec6[i] = 0;
+		for (int i=0; i<2; i++) fVec1[i] = 0;
+		for (int i=0; i<2; i++) fRec8[i] = 0;
+		for (int i=0; i<2; i++) fVec2[i] = 0;
+		IOTA = 0;
+		for (int i=0; i<1024; i++) fVec3[i] = 0;
+		for (int i=0; i<1024; i++) fVec4[i] = 0;
+		for (int i=0; i<3; i++) fRec5[i] = 0;
+		for (int i=0; i<3; i++) fRec4[i] = 0;
+		for (int i=0; i<2; i++) fRec9[i] = 0;
+		for (int i=0; i<3; i++) fRec3[i] = 0;
 		for (int i=0; i<3; i++) fRec2[i] = 0;
 	}
 	virtual void init(int samplingFreq) {
@@ -744,41 +804,78 @@ class vicSynth : public dsp {
 	}
 	virtual void buildUserInterface(UI* ui_interface) {
 		ui_interface->openHorizontalBox("saw");
-		ui_interface->addHorizontalSlider("cutoff", &fslider0, 5e+02f, 5e+01f, 3e+03f, 0.01f);
-		ui_interface->addNumEntry("freq", &fentry1, 4.4e+02f, 2e+01f, 2e+04f, 0.01f);
-		ui_interface->addNumEntry("gain", &fentry0, 1.0f, 0.0f, 1.0f, 0.01f);
+		ui_interface->addHorizontalSlider("formant", &fslider1, 0.0f, 0.0f, 1.0f, 0.01f);
+		ui_interface->addNumEntry("freq", &fentry0, 24.0f, 12.0f, 48.0f, 0.01f);
+		ui_interface->addHorizontalSlider("gain", &fslider0, 1.0f, 0.0f, 1.0f, 0.01f);
 		ui_interface->addButton("gate", &fbutton0);
 		ui_interface->closeBox();
 	}
 	virtual void compute (int count, FAUSTFLOAT** input, FAUSTFLOAT** output) {
-		float 	fSlow0 = (0.001f * float(fentry0));
+		float 	fSlow0 = (0.001f * float(fslider0));
 		float 	fSlow1 = (0.001f * float(fbutton0));
-		float 	fSlow2 = (0.001f * float(fentry1));
-		float 	fSlow3 = (0.001f * float(fslider0));
+		float 	fSlow2 = (0.001f * float(fentry0));
+		float 	fSlow3 = (0.001f * float(fslider1));
 		FAUSTFLOAT* output0 = output[0];
 		for (int i=0; i<count; i++) {
+			iVec0[0] = 1;
 			fRec0[0] = (fSlow0 + (0.999f * fRec0[1]));
 			fRec1[0] = (fSlow1 + (0.999f * fRec1[1]));
-			fRec5[0] = (fSlow2 + (0.999f * fRec5[1]));
-			float fTemp0 = float(max(1e-07f, fabsf(fRec5[0])));
-			float fTemp1 = (fRec3[1] + (fConst2 * fTemp0));
-			float fTemp2 = (fTemp1 + -1);
-			int iTemp3 = int((fTemp2 < 0));
-			fRec3[0] = ((iTemp3)?fTemp1:fTemp2);
-			float 	fRec4 = ((iTemp3)?fTemp1:(fTemp1 + (fTemp2 * (1 - (fConst1 / fTemp0)))));
-			fRec6[0] = (fSlow3 + (0.999f * fRec6[1]));
-			float fTemp4 = tanf((fConst3 * fRec6[0]));
-			float fTemp5 = (1.0f / fTemp4);
-			float fTemp6 = (((fTemp5 + 1.4142135f) / fTemp4) + 1);
-			fRec2[0] = ((2 * fRec4) + (-1 - (((fRec2[2] * (((fTemp5 + -1.4142135f) / fTemp4) + 1)) + (2 * (fRec2[1] * (1 - (1.0f / faustpower<2>(fTemp4)))))) / fTemp6)));
-			output0[i] = (FAUSTFLOAT)(((fRec0[0] * fRec1[0]) * (fRec2[0] + (fRec2[2] + (2.0f * fRec2[1])))) / fTemp6);
+			fRec7[0] = (fSlow2 + (0.999f * fRec7[1]));
+			float fTemp0 = max((4.4e+02f * powf(2.0f,(0.083333336f * (fRec7[0] + -69.0f)))), 23.44895f);
+			float fTemp1 = max(2e+01f, fabsf(fTemp0));
+			float fTemp2 = (fRec6[1] + (fConst10 * fTemp1));
+			fRec6[0] = (fTemp2 - floorf(fTemp2));
+			float fTemp3 = faustpower<2>(((2 * fRec6[0]) + -1));
+			fVec1[0] = fTemp3;
+			float fTemp4 = (fVec1[0] - fVec1[1]);
+			float fTemp5 = max((4.4e+02f * powf(2.0f,(0.083333336f * (fRec7[0] + -57.0f)))), 23.44895f);
+			float fTemp6 = max(2e+01f, fabsf(fTemp5));
+			float fTemp7 = (fRec8[1] + (fConst10 * fTemp6));
+			fRec8[0] = (fTemp7 - floorf(fTemp7));
+			float fTemp8 = faustpower<2>(((2 * fRec8[0]) + -1));
+			fVec2[0] = fTemp8;
+			float fTemp9 = (fVec2[0] - fVec2[1]);
+			float fTemp10 = max((float)0, min((float)2047, (fConst11 / fTemp5)));
+			float fTemp11 = floorf(fTemp10);
+			float fTemp12 = ((iVec0[1] * fTemp9) / fTemp6);
+			fVec3[IOTA&1023] = fTemp12;
+			int iTemp13 = int(fTemp10);
+			float fTemp14 = ((iVec0[1] * fTemp4) / fTemp1);
+			fVec4[IOTA&1023] = fTemp14;
+			float fTemp15 = max((float)0, min((float)2047, (fConst11 / fTemp0)));
+			int iTemp16 = int(fTemp15);
+			float fTemp17 = floorf(fTemp15);
+			float fTemp18 = tanf((fConst12 * ((2950 * fRec0[0]) + 50)));
+			float fTemp19 = (1.0f / fTemp18);
+			float fTemp20 = (((fTemp19 + 0.125f) / fTemp18) + 1);
+			fRec5[0] = ((fConst9 * ((iVec0[1] * ((fTemp4 / fTemp1) + (fTemp9 / fTemp6))) - (((fTemp10 - fTemp11) * fVec3[(IOTA-int((iTemp13 + 1)))&1023]) + ((fVec3[(IOTA-iTemp13)&1023] * (fTemp11 + (1 - fTemp10))) + ((fVec4[(IOTA-iTemp16)&1023] * (fTemp17 + (1 - fTemp15))) + ((fTemp15 - fTemp17) * fVec4[(IOTA-int((iTemp16 + 1)))&1023])))))) - (((fRec5[2] * (((fTemp19 + -0.125f) / fTemp18) + 1)) + (2 * (fRec5[1] * (1 - (1.0f / faustpower<2>(fTemp18)))))) / fTemp20));
+			float fTemp21 = max((float)-1, min((float)1, (3.9810717f * ((fRec5[0] + (fRec5[2] + (2.0f * fRec5[1]))) / fTemp20))));
+			fRec4[0] = ((fTemp21 * (1 - (0.33333334f * faustpower<2>(fTemp21)))) - (fConst6 * ((fConst13 * fRec4[2]) + (fConst14 * fRec4[1]))));
+			fRec9[0] = (fSlow3 + (0.999f * fRec9[1]));
+			float fTemp22 = (1 - fRec9[0]);
+			float fTemp23 = tanf((fConst12 * ((1620 * fTemp22) + (750 * fRec9[0]))));
+			float fTemp24 = (1.0f / fTemp23);
+			float fTemp25 = (((fTemp24 + 0.1f) / fTemp23) + 1);
+			fRec3[0] = ((fConst6 * ((fConst7 * fRec4[2]) + (fConst5 * fRec4[0]))) - (((2 * (fRec3[1] * (1 - (1.0f / faustpower<2>(fTemp23))))) + (fRec3[2] * (((fTemp24 + -0.1f) / fTemp23) + 1))) / fTemp25));
+			float fTemp26 = ((0.7f * fRec9[0]) + (0.65f * fTemp22));
+			fRec2[0] = ((((fRec3[2] * (0 - (fTemp26 / fTemp23))) + ((fTemp26 * fRec3[0]) / fTemp23)) / fTemp25) - (fConst3 * ((fConst15 * fRec2[2]) + (fConst16 * fRec2[1]))));
+			float fTemp27 = ((0.5f * fRec9[0]) + (0.9f * fTemp22));
+			output0[i] = (FAUSTFLOAT)(fConst3 * ((fRec0[0] * fRec1[0]) * ((fRec2[2] * (0 - (fConst2 * fTemp27))) + (fConst2 * (fTemp27 * fRec2[0])))));
 			// post processing
 			fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
+			fRec3[2] = fRec3[1]; fRec3[1] = fRec3[0];
+			fRec9[1] = fRec9[0];
+			fRec4[2] = fRec4[1]; fRec4[1] = fRec4[0];
+			fRec5[2] = fRec5[1]; fRec5[1] = fRec5[0];
+			IOTA = IOTA+1;
+			fVec2[1] = fVec2[0];
+			fRec8[1] = fRec8[0];
+			fVec1[1] = fVec1[0];
 			fRec6[1] = fRec6[0];
-			fRec3[1] = fRec3[0];
-			fRec5[1] = fRec5[0];
+			fRec7[1] = fRec7[0];
 			fRec1[1] = fRec1[0];
 			fRec0[1] = fRec0[0];
+			iVec0[1] = iVec0[0];
 		}
 	}
 };

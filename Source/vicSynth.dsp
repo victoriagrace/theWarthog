@@ -56,12 +56,15 @@ f3_amp = pos * f3_amp_oo + (1 - pos) * f3_amp_ee;
 process = hgroup("saw",
 pulsetrain(ba.midikey2hz(freq), 0.1) 
 + pulsetrain(ba.midikey2hz(freq + 12), 0.1)
-
+//lf_imptrain(ba.midikey2hz(freq)) 
+//+ lf_imptrain(ba.midikey2hz(freq + 12))
+//saw2(freq)
 //:lowpass(2,fc):dyn.cubicnl(0.8,0.5):
-:resonlp(fc, 8, 1):dyn.cubicnl(0.3,0):
+:resonlp(fc, 8, 1):
+dyn.cubicnl(0.3,0):
 
 resonbp(f1_freq,f1_bw,f1_amp):
 resonbp(f2_freq,f2_bw,f2_amp):
 resonbp(f3_freq,f3_bw,f3_amp)
-* gain);
+* gain * onoff);
 
