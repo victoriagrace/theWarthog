@@ -36,7 +36,7 @@ public:
         freqSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
         addAndMakeVisible (freqSlider);
        // freqSlider.setBounds (600, 100, 20, 230);
-        freqSlider.setRange (50.0, 5000.0);
+        freqSlider.setRange (50.0, 2000.0);
         freqSlider.setSkewFactorFromMidPoint (500.0); // [4]
         freqSlider.addListener (this);
    
@@ -58,6 +58,12 @@ public:
         cutoffSlider.setRange (50.0, 3000.0);
         //cutoffSlider.setSkewFactorFromMidPoint(0.5);
         cutoffSlider.addListener (this);
+        
+        // On and Off button
+        addAndMakeVisible(onOffB);
+        onOffB.addListener(this);
+        
+        
     }
 
     ~MainContentComponent()
@@ -85,7 +91,7 @@ public:
         for(int i=0; i<synthControl.getParamsCount(); i++){
             std::cout << synthControl.getParamAdress(i) << "\n";
         }
-            synthControl.setParamValue("/saw/freq",2000);
+            synthControl.setParamValue("/saw/freq",200);
             synthControl.setParamValue("/saw/gain",0.5);
             synthControl.setParamValue("/saw/gate",1);
             synthControl.setParamValue("/saw/cutoff",1000);
@@ -160,7 +166,8 @@ public:
         
         gainSlider.setBounds(3*gridW,6*gridH,2*gridW,sliderWidth);
 
-        
+        onOffB.setBounds (3*gridW, 3*gridH, 40, 40);
+
 //        {
 //            Rectangle<int> dialArea = area.removeFromTop (area.getHeight() / 2);
 //            freqSlider.setBounds (dialArea.removeFromLeft (dialArea.getWidth() / 2).reduced (border));
@@ -195,7 +202,15 @@ public:
             }
     
     /** Called when the button is clicked. */
-    void buttonClicked (Button*) override {}
+    void buttonClicked (Button* button) override
+    {
+        if(button == &onOffB && onOffB.getToggleState()){
+            synthControl.setParamValue("/saw/gate", 1);
+        }
+        else{
+            synthControl.setParamValue("/saw/gate", 0);
+        }
+    }
     
     /** Called when the button's state changes. */
     void buttonStateChanged (Button*) override  {}
@@ -216,6 +231,10 @@ private:
     Slider freqSlider;
     Slider gainSlider;
     Slider cutoffSlider;
+    
+    ToggleButton onOffB;
+    // ImageButton snout;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 
