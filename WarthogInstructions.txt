@@ -1,0 +1,9 @@
+Warthog Instructions
+
+Download code from Github and run it in Xcode to open up theWarthog. 
+
+Usage: 
+- Click the snout to turn synth on and off
+- The horizontal slider under the snout controls the gain and cutoff of a low pass filter
+- The slider to the left of the snout controls the frequency of the synth
+- The slider to the right of te snout controls the formants of the synth (the top making an "oo" sound and the bottom making an "ee" sound)
