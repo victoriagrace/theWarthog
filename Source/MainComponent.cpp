@@ -32,7 +32,9 @@ public:
         audioBuffer = new float*[nChans]; // allocate memory
         
     // Dial 1
-        freqSlider.setSliderStyle (Slider::LinearBarVertical);
+        style = Slider::LinearBarVertical;
+        freqSlider.setSliderStyle (style);
+        freqSlider.setColour(1, Colours::darkred);
         freqSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
         addAndMakeVisible (freqSlider);
        // freqSlider.setBounds (600, 100, 20, 230);
@@ -52,7 +54,7 @@ public:
         
         // Dial 3
         cutoffSlider.setSliderStyle (Slider::LinearBarVertical);
-        //cutoffSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
+        cutoffSlider.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
        // cutoffSlider.setBounds (100, 100, 20, 230);
         addAndMakeVisible (cutoffSlider);
         cutoffSlider.setRange (0, 1);
@@ -73,7 +75,7 @@ public:
         onOffB.setImages (true, true, true,
                        juceImage, 0.7f, Colours::pink,
                        juceImage, 1.0f, Colours::peachpuff,
-                       juceImage, 1.0f, Colours::red, //
+                       juceImage, 1.0f, Colours::darkred, //
                        0.5f);
         addAndMakeVisible(onOffB);
 
@@ -154,10 +156,9 @@ public:
         // (Our component is opaque, so we must completely fill the background with a solid colour)
        // g.fillAll (Colours::black);
         
-        File f = (String)"/Users/victoriagrace/Desktop/backgrounds/hay.jpg";
+        File f = (String)"/Users/victoriagrace/Desktop/backgrounds/hay2.jpg";
         Image hay = ImageFileFormat::loadFrom(f);
         g.drawImageAt(hay,0,0,false);
-
         // You can add your drawing code here!
     }
 
@@ -177,13 +178,13 @@ public:
         int h = area.getHeight();
         int gridW = w/8;
         int gridH = h/8;
-        int sliderWidth = 20; // for the offset
+        int sliderWidth = 40; // for the offset
         
-        freqSlider.setBounds(2*gridW-sliderWidth,3*gridH,sliderWidth,3*gridH);
-        cutoffSlider.setBounds(6*gridW,3*gridH,sliderWidth,3*gridH);
+        freqSlider.setBounds(2*gridW-sliderWidth,2*gridH,sliderWidth,3*gridH);
+        cutoffSlider.setBounds(6*gridW,2*gridH,sliderWidth,3*gridH);
         
-        gainSlider.setBounds(3*gridW,6*gridH,2*gridW,sliderWidth);
-        onOffB.setBounds(3*gridW,3*gridH,2*gridW,3*gridH);
+        gainSlider.setBounds(3*gridW,5*gridH,2*gridW,sliderWidth);
+        onOffB.setBounds(3*gridW,2*gridH,2*gridW,3*gridH);
 
         //onOffB.setBounds (3*gridW, 3*gridH, 500, 500);
 
@@ -260,6 +261,8 @@ private:
     ImageButton onOffB;
     Image juceImage;
     int tog;
+    juce::Slider::SliderStyle style;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
