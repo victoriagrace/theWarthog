@@ -60,10 +60,28 @@ public:
         cutoffSlider.addListener (this);
         
         // On and Off button
+        File snout = (String)"/Users/victoriagrace/Desktop/Music 256A/theWarthog/snout.png";
+        
+        if(snout.exists()) {
+            std::cout << "Success!\n";
+        } else {
+            std::cout << "Not a succes. womp womp :(\n";
+        }
+        
+        juceImage = ImageFileFormat::loadFrom(snout);
+
+        onOffB.setImages (true, true, true,
+                       juceImage, 0.7f, Colours::pink,
+                       juceImage, 1.0f, Colours::peachpuff,
+                       juceImage, 1.0f, Colours::red, //
+                       0.5f);
         addAndMakeVisible(onOffB);
+
         onOffB.addListener(this);
+
+        tog = 1;
         
-        
+        resized();
     }
 
     ~MainContentComponent()
@@ -137,7 +155,7 @@ public:
        // g.fillAll (Colours::black);
         
         File f = (String)"/Users/victoriagrace/Desktop/backgrounds/hay.jpg";
-        Image hay = ImageFileFormat::loadFrom(f);;
+        Image hay = ImageFileFormat::loadFrom(f);
         g.drawImageAt(hay,0,0,false);
 
         // You can add your drawing code here!
@@ -165,8 +183,9 @@ public:
         cutoffSlider.setBounds(6*gridW,3*gridH,sliderWidth,3*gridH);
         
         gainSlider.setBounds(3*gridW,6*gridH,2*gridW,sliderWidth);
+        onOffB.setBounds(3*gridW,3*gridH,2*gridW,3*gridH);
 
-        onOffB.setBounds (3*gridW, 3*gridH, 40, 40);
+        //onOffB.setBounds (3*gridW, 3*gridH, 500, 500);
 
 //        {
 //            Rectangle<int> dialArea = area.removeFromTop (area.getHeight() / 2);
@@ -204,16 +223,22 @@ public:
     /** Called when the button is clicked. */
     void buttonClicked (Button* button) override
     {
-        if(button == &onOffB && onOffB.getToggleState()){
-            synthControl.setParamValue("/saw/gate", 1);
+        if(button == &onOffB){
+            if(tog == 0) {
+                tog = 1;
+            } else {
+                tog = 0;
+            }
+            
+            synthControl.setParamValue("/saw/gate", tog);
         }
-        else{
-            synthControl.setParamValue("/saw/gate", 0);
-        }
+        
     }
     
     /** Called when the button's state changes. */
-    void buttonStateChanged (Button*) override  {}
+    void buttonStateChanged (Button* button) override  {
+       
+    }
 
 private:
     //==============================================================================
@@ -232,9 +257,10 @@ private:
     Slider gainSlider;
     Slider cutoffSlider;
     
-    ToggleButton onOffB;
-    // ImageButton snout;
-    
+    ImageButton onOffB;
+    Image juceImage;
+    int tog;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 
